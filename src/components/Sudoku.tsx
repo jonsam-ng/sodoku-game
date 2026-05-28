@@ -132,7 +132,7 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
       row.map((cell, ci) => ({
         ...cell,
         error: errors.some(([r, c]) => r === ri && c === ci),
-      })
+      }))
     );
 
     setGame({ ...game, grid: newGrid });
