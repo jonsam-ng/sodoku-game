@@ -25,6 +25,29 @@ function createEmptyGrid(): number[][] {
   return Array(9).fill(null).map(() => Array(9).fill(0));
 }
 
+/**
+ * 检查数独规则：行、列、3x3宫格是否有重复数字
+ */
+export function isValidPlacement(grid: (number | null)[][], row: number, col: number, num: number): boolean {
+  // 检查行
+  for (let i = 0; i < 9; i++) {
+    if (grid[row][i] === num) return false;
+  }
+  // 检查列
+  for (let i = 0; i < 9; i++) {
+    if (grid[i][col] === num) return false;
+  }
+  // 检查3x3宫格
+  const startRow = Math.floor(row / 3) * 3;
+  const startCol = Math.floor(col / 3) * 3;
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      if (grid[startRow + i][startCol + j] === num) return false;
+    }
+  }
+  return true;
+}
+
 function isValid(grid: number[][], row: number, col: number, num: number): boolean {
   for (let i = 0; i < 9; i++) {
     if (grid[row][i] === num) return false;
@@ -112,15 +135,41 @@ export function generateSudoku(difficulty: Difficulty): SudokuGame {
   return { grid, solution, difficulty };
 }
 
+/**
+ * 检查数独是否完整且正确
+ * 不仅与答案比对，还验证数独规则
+ */
 export function checkSolution(grid: SudokuGrid, solution: number[][]): { correct: boolean; errors: [number, number][] } {
   const errors: [number, number][] = [];
   let correct = true;
   
+  // 先检查每个格子是否与答案一致
   for (let i = 0; i < 9; i++) {
     for (let j = 0; j < 9; j++) {
       if (grid[i][j].value !== null && grid[i][j].value !== solution[i][j]) {
         errors.push([i, j]);
         correct = false;
+      }
+    }
+  }
+  
+  // 再验证数独规则：确保每行、每列、每个3x3宫格没有重复数字
+  const valueGrid: (number | null)[][] = grid.map(row => row.map(cell => cell.value));
+  
+  for (let i = 0; i < 9; i++) {
+    for (let j = 0; j < 9; j++) {
+      const num = valueGrid[i][j];
+      if (num !== null) {
+        // 临时清空当前格子，检查是否有重复
+        valueGrid[i][j] = null;
+        if (!isValidPlacement(valueGrid, i, j, num)) {
+          // 如果有重复且还没标记为错误
+          if (!errors.some(([r, c]) => r === i && c === j)) {
+            errors.push([i, j]);
+            correct = false;
+          }
+        }
+        valueGrid[i][j] = num;
       }
     }
   }
