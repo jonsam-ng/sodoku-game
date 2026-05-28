@@ -13,6 +13,7 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [mistakes, setMistakes] = useState(0);
+  const [showDifficultyModal, setShowDifficultyModal] = useState(true);
 
   const startNewGame = useCallback((diff: Difficulty) => {
     const newGame = generateSudoku(diff);
@@ -22,11 +23,18 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
     setIsPlaying(true);
     setShowSuccess(false);
     setMistakes(0);
+    setShowDifficultyModal(false);
   }, []);
 
-  useEffect(() => {
-    startNewGame(difficulty);
-  }, [startNewGame, difficulty]);
+  const handleSelectDifficulty = (diff: Difficulty) => {
+    setDifficulty(diff);
+    startNewGame(diff);
+  };
+
+  const handleNewGameClick = () => {
+    setShowDifficultyModal(true);
+    setIsPlaying(false);
+  };
 
   useEffect(() => {
     let interval: number;
@@ -162,140 +170,160 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
     return game.grid[row][col].value === value;
   } : () => false;
 
+  const getDifficultyText = (diff: Difficulty) => {
+    return diff === 'easy' ? '简单' : diff === 'medium' ? '中等' : '复杂';
+  };
+
   return (
     <div className={`flex flex-col items-center gap-6 p-4 ${className}`}>
-      <div className="text-3xl font-bold text-gray-800 mb-2">数独</div>
+      {/* 难度选择弹窗 */}
+      {showDifficultyModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-3xl p-8 shadow-2xl max-w-sm w-full mx-4">
+            <h2 className="text-2xl font-bold text-gray-800 mb-2 text-center">选择难度</h2>
+            <p className="text-gray-500 text-center mb-8">请选择您想要挑战的难度级别</p>
+            <div className="flex flex-col gap-4">
+              {(['easy', 'medium', 'hard'] as Difficulty[]).map((diff) => (
+                <button
+                  key={diff}
+                  onClick={() => handleSelectDifficulty(diff)}
+                  className={`w-full py-4 rounded-2xl text-lg font-semibold transition-all transform hover:scale-105 ${
+                    diff === 'easy'
+                      ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                      : diff === 'medium'
+                      ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                      : 'bg-red-100 text-red-700 hover:bg-red-200'
+                  }`}
+                >
+                  {getDifficultyText(diff)}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       
-      <div className="flex items-center gap-8 bg-white rounded-2xl px-6 py-3 shadow-sm">
-        <div className="flex flex-col items-center">
-          <span className="text-xs text-gray-500 uppercase tracking-wider">时间</span>
-          <span className="text-xl font-semibold text-gray-800">{formatTime(time)}</span>
-        </div>
-        <div className="w-px h-10 bg-gray-200" />
-        <div className="flex flex-col items-center">
-          <span className="text-xs text-gray-500 uppercase tracking-wider">错误</span>
-          <span className="text-xl font-semibold text-gray-800">{mistakes}</span>
-        </div>
-      </div>
+      {game && !showDifficultyModal && (
+        <>
+          <div className="flex items-center gap-8 bg-white rounded-2xl px-6 py-3 shadow-sm">
+            <div className="flex flex-col items-center">
+              <span className="text-xs text-gray-500 uppercase tracking-wider">时间</span>
+              <span className="text-xl font-semibold text-gray-800">{formatTime(time)}</span>
+            </div>
+            <div className="w-px h-10 bg-gray-200" />
+            <div className="flex flex-col items-center">
+              <span className="text-xs text-gray-500 uppercase tracking-wider">难度</span>
+              <span className="text-xl font-semibold text-gray-800">{getDifficultyText(difficulty)}</span>
+            </div>
+            <div className="w-px h-10 bg-gray-200" />
+            <div className="flex flex-col items-center">
+              <span className="text-xs text-gray-500 uppercase tracking-wider">错误</span>
+              <span className="text-xl font-semibold text-gray-800">{mistakes}</span>
+            </div>
+          </div>
 
-      <div className="flex bg-gray-100 rounded-xl p-1">
-        {(['easy', 'medium', 'hard'] as Difficulty[]).map((diff) => (
-          <button
-            key={diff}
-            onClick={() => setDifficulty(diff)}
-            className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${
-              difficulty === diff
-                ? 'bg-white text-blue-500 shadow-sm'
-                : 'text-gray-600 hover:text-gray-800'
-            }`}
-          >
-            {diff === 'easy' ? '简单' : diff === 'medium' ? '中等' : '复杂'}
-          </button>
-        ))}
-      </div>
+          <div className="relative">
+            <div 
+              className="grid grid-cols-9 bg-gray-800 gap-0.5 p-0.5 rounded-xl overflow-hidden shadow-lg"
+            >
+              {game.grid.map((row, rowIndex) =>
+                row.map((cell, colIndex) => {
+                  const isSelected = selectedCell?.[0] === rowIndex && selectedCell?.[1] === colIndex;
+                  const isRelated = isSameRow(rowIndex) || isSameCol(colIndex) || isSameBox(rowIndex, colIndex);
+                  const hasSameValue = isSameValue(cell.value);
+                  const isRightBorder = (colIndex + 1) % 3 === 0 && colIndex !== 8;
+                  const isBottomBorder = (rowIndex + 1) % 3 === 0 && rowIndex !== 8;
 
-      {game && (
-        <div className="relative">
-          <div 
-            className="grid grid-cols-9 bg-gray-800 gap-0.5 p-0.5 rounded-xl overflow-hidden shadow-lg"
-          >
-            {game.grid.map((row, rowIndex) =>
-              row.map((cell, colIndex) => {
-                const isSelected = selectedCell?.[0] === rowIndex && selectedCell?.[1] === colIndex;
-                const isRelated = isSameRow(rowIndex) || isSameCol(colIndex) || isSameBox(rowIndex, colIndex);
-                const hasSameValue = isSameValue(cell.value);
-                const isRightBorder = (colIndex + 1) % 3 === 0 && colIndex !== 8;
-                const isBottomBorder = (rowIndex + 1) % 3 === 0 && rowIndex !== 8;
+                  return (
+                    <div
+                      key={`${rowIndex}-${colIndex}`}
+                      onClick={() => handleCellClick(rowIndex, colIndex)}
+                      className={`
+                        aspect-square flex items-center justify-center text-2xl font-medium cursor-pointer
+                        transition-all duration-150
+                        ${cell.fixed ? 'text-gray-800 font-semibold' : 'text-blue-500'}
+                        ${cell.error ? 'text-red-500 bg-red-50' : ''}
+                        ${isSelected ? 'bg-blue-200' : isRelated ? 'bg-blue-50' : 'bg-white'}
+                        ${hasSameValue && !isSelected ? 'bg-blue-100' : ''}
+                        ${isRightBorder ? 'border-r-2 border-gray-800' : ''}
+                        ${isBottomBorder ? 'border-b-2 border-gray-800' : ''}
+                        hover:bg-blue-100
+                      `}
+                    >
+                      {cell.value}
+                    </div>
+                  );
+                })
+              )}
+            </div>
 
-                return (
-                  <div
-                    key={`${rowIndex}-${colIndex}`}
-                    onClick={() => handleCellClick(rowIndex, colIndex)}
-                    className={`
-                      aspect-square flex items-center justify-center text-2xl font-medium cursor-pointer
-                      transition-all duration-150
-                      ${cell.fixed ? 'text-gray-800 font-semibold' : 'text-blue-500'}
-                      ${cell.error ? 'text-red-500 bg-red-50' : ''}
-                      ${isSelected ? 'bg-blue-200' : isRelated ? 'bg-blue-50' : 'bg-white'}
-                      ${hasSameValue && !isSelected ? 'bg-blue-100' : ''}
-                      ${isRightBorder ? 'border-r-2 border-gray-800' : ''}
-                      ${isBottomBorder ? 'border-b-2 border-gray-800' : ''}
-                      hover:bg-blue-100
-                    `}
-                  >
-                    {cell.value}
-                  </div>
-                );
-              })
+            {showSuccess && (
+              <div className="absolute inset-0 bg-white/95 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center gap-4">
+                <div className="text-4xl">🎉</div>
+                <div className="text-2xl font-bold text-gray-800">恭喜完成!</div>
+                <div className="text-gray-600">用时: {formatTime(time)}</div>
+                <button
+                  onClick={handleNewGameClick}
+                  className="bg-blue-500 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-600 transition-colors shadow-lg"
+                >
+                  再来一局
+                </button>
+              </div>
             )}
           </div>
 
-          {showSuccess && (
-            <div className="absolute inset-0 bg-white/95 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center gap-4">
-              <div className="text-4xl">🎉</div>
-              <div className="text-2xl font-bold text-gray-800">恭喜完成!</div>
-              <div className="text-gray-600">用时: {formatTime(time)}</div>
+          <div className="flex gap-3">
+            <button
+              onClick={handleNewGameClick}
+              className="flex flex-col items-center gap-1 px-4 py-2 text-gray-600 hover:text-blue-500 transition-colors"
+            >
+              <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span className="text-xs">新游戏</span>
+            </button>
+            <button
+              onClick={handleCheck}
+              className="flex flex-col items-center gap-1 px-4 py-2 text-gray-600 hover:text-blue-500 transition-colors"
+            >
+              <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-xs">检查</span>
+            </button>
+            <button
+              onClick={handleHint}
+              className="flex flex-col items-center gap-1 px-4 py-2 text-gray-600 hover:text-blue-500 transition-colors"
+            >
+              <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+              <span className="text-xs">提示</span>
+            </button>
+            <button
+              onClick={handleClear}
+              className="flex flex-col items-center gap-1 px-4 py-2 text-gray-600 hover:text-blue-500 transition-colors"
+            >
+              <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span className="text-xs">清除</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-5 gap-2 w-full max-w-sm">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
               <button
-                onClick={() => startNewGame(difficulty)}
-                className="bg-blue-500 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-600 transition-colors shadow-lg"
+                key={num}
+                onClick={() => handleNumberInput(num)}
+                className="aspect-square flex items-center justify-center text-xl font-semibold bg-white text-gray-800 rounded-xl shadow-sm hover:bg-gray-50 active:scale-95 transition-all"
               >
-                新游戏
+                {num}
               </button>
-            </div>
-          )}
-        </div>
+            ))}
+          </div>
+        </>
       )}
-
-      <div className="flex gap-3">
-        <button
-          onClick={() => startNewGame(difficulty)}
-          className="flex flex-col items-center gap-1 px-4 py-2 text-gray-600 hover:text-blue-500 transition-colors"
-        >
-          <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          <span className="text-xs">新游戏</span>
-        </button>
-        <button
-          onClick={handleCheck}
-          className="flex flex-col items-center gap-1 px-4 py-2 text-gray-600 hover:text-blue-500 transition-colors"
-        >
-          <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span className="text-xs">检查</span>
-        </button>
-        <button
-          onClick={handleHint}
-          className="flex flex-col items-center gap-1 px-4 py-2 text-gray-600 hover:text-blue-500 transition-colors"
-        >
-          <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-          </svg>
-          <span className="text-xs">提示</span>
-        </button>
-        <button
-          onClick={handleClear}
-          className="flex flex-col items-center gap-1 px-4 py-2 text-gray-600 hover:text-blue-500 transition-colors"
-        >
-          <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-          <span className="text-xs">清除</span>
-        </button>
-      </div>
-
-      <div className="grid grid-cols-5 gap-2 w-full max-w-sm">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-          <button
-            key={num}
-            onClick={() => handleNumberInput(num)}
-            className="aspect-square flex items-center justify-center text-xl font-semibold bg-white text-gray-800 rounded-xl shadow-sm hover:bg-gray-50 active:scale-95 transition-all"
-          >
-            {num}
-          </button>
-        ))}
-      </div>
     </div>
   );
 };
