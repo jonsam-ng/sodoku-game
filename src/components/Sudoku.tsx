@@ -8,6 +8,7 @@ interface SudokuProps {
 const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
   const [game, setGame] = useState<SudokuGame | null>(null);
   const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null);
+  const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [time, setTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -19,6 +20,7 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
     const newGame = generateSudoku(diff);
     setGame(newGame);
     setSelectedCell(null);
+    setSelectedNumber(null);
     setTime(0);
     setIsPlaying(true);
     setShowSuccess(false);
@@ -46,8 +48,34 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
     return () => clearInterval(interval);
   }, [isPlaying, showSuccess]);
 
+  // 检查某个数字是否已经用完（9个都填了）
+  const isNumberComplete = (num: number): boolean => {
+    if (!game) return false;
+    let count = 0;
+    for (let i = 0; i < 9; i++) {
+      for (let j = 0; j < 9; j++) {
+        if (game.grid[i][j].value === num) {
+          count++;
+        }
+      }
+    }
+    return count === 9;
+  };
+
   const handleCellClick = (row: number, col: number) => {
     setSelectedCell([row, col]);
+    setSelectedNumber(null); // 清除从键盘选中的数字
+  };
+
+  const handleNumberClick = (num: number) => {
+    if (selectedCell && game && !game.grid[selectedCell[0]][selectedCell[1]].fixed) {
+      // 如果有选中的格子，并且该格子不是固定的，就填入数字
+      handleNumberInput(num);
+    } else {
+      // 否则，只是选中数字用于高亮
+      setSelectedNumber(num);
+      setSelectedCell(null);
+    }
   };
 
   const handleNumberInput = (num: number) => {
@@ -165,11 +193,19 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
     const selectedBoxCol = Math.floor(selectedCell[1] / 3);
     return Math.floor(row / 3) === selectedBoxRow && Math.floor(col / 3) === selectedBoxCol;
   } : () => false;
-  const isSameValue = selectedCell && game ? (value: number | null) => {
-    if (value === null) return false;
-    const [row, col] = selectedCell;
-    return game.grid[row][col].value === value;
-  } : () => false;
+  
+  const getSelectedValue = () => {
+    if (selectedCell && game) {
+      return game.grid[selectedCell[0]][selectedCell[1]].value;
+    }
+    return selectedNumber;
+  };
+
+  const isSameValue = (value: number | null) => {
+    const selectedVal = getSelectedValue();
+    if (value === null || selectedVal === null) return false;
+    return value === selectedVal;
+  };
 
   const getDifficultyText = (diff: Difficulty) => {
     return diff === 'easy' ? '简单' : diff === 'medium' ? '中等' : '复杂';
@@ -249,7 +285,7 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
               {game.grid.map((row, rowIndex) =>
                 row.map((cell, colIndex) => {
                   const isSelected = selectedCell?.[0] === rowIndex && selectedCell?.[1] === colIndex;
-                  const isRelated = isSameRow(rowIndex) || isSameCol(colIndex) || isSameBox(rowIndex, colIndex);
+                  const isRelatedRowOrCol = isSameRow(rowIndex) || isSameCol(colIndex);
                   const hasSameValue = isSameValue(cell.value);
                   const isRightBorder = (colIndex + 1) % 3 === 0 && colIndex !== 8;
                   const isBottomBorder = (rowIndex + 1) % 3 === 0 && rowIndex !== 8;
@@ -266,10 +302,11 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
                         ${cell.error || hasConflict ? 'text-red-500 bg-red-50' : ''}
                         ${isSelected 
                           ? 'bg-blue-200 ring-2 ring-blue-500 z-10 scale-105 shadow-md' 
-                          : isRelated 
-                            ? 'bg-blue-50' 
-                            : 'bg-white hover:bg-blue-50/50'}
-                        ${hasSameValue && !isSelected ? 'bg-blue-100/80' : ''}
+                          : hasSameValue && !cell.error && !hasConflict
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : isRelatedRowOrCol
+                              ? 'bg-blue-50'
+                              : 'bg-white hover:bg-blue-50/50'}
                         ${isRightBorder ? 'border-r-4 border-gray-800' : 'border-r border-gray-200'}
                         ${isBottomBorder ? 'border-b-4 border-gray-800' : 'border-b border-gray-200'}
                         ${(rowIndex === 0) ? 'border-t border-gray-200' : ''}
@@ -365,15 +402,29 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
 
           {/* 数字键盘 */}
           <div className="grid grid-cols-5 gap-3 w-full max-w-md">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-              <button
-                key={num}
-                onClick={() => handleNumberInput(num)}
-                className="aspect-square flex items-center justify-center text-2xl font-bold bg-white text-gray-800 rounded-2xl shadow-md hover:shadow-xl transition-all transform hover:scale-105 active:scale-95 border-2 border-gray-100 hover:border-blue-300"
-              >
-                {num}
-              </button>
-            ))}
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => {
+              const isComplete = isNumberComplete(num);
+              const isNumSelected = selectedNumber === num;
+              const selectedVal = getSelectedValue();
+              const isNumHighlighted = selectedVal === num;
+              
+              return (
+                <button
+                  key={num}
+                  onClick={() => !isComplete && handleNumberClick(num)}
+                  disabled={isComplete}
+                  className={`aspect-square flex items-center justify-center text-2xl font-bold rounded-2xl shadow-md transition-all transform hover:scale-105 active:scale-95 border-2 ${
+                    isComplete 
+                      ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-50'
+                      : isNumSelected || isNumHighlighted
+                        ? 'bg-yellow-400 text-yellow-900 border-yellow-500 shadow-lg scale-105'
+                        : 'bg-white text-gray-800 border-gray-100 hover:border-blue-300 hover:shadow-xl'
+                  }`}
+                >
+                  {num}
+                </button>
+              );
+            })}
           </div>
         </>
       )}
