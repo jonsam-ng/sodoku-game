@@ -36,6 +36,7 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
   const handleNewGameClick = () => {
     setShowDifficultyModal(true);
     setIsPlaying(false);
+    setShowSuccess(false);
   };
 
   useEffect(() => {
@@ -316,7 +317,7 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
           {/* 数独网格 */}
           <div className="relative w-full">
             <div 
-              className="grid grid-cols-9 bg-gray-800 gap-[2px] p-0.5 rounded-xl overflow-hidden shadow-lg border-2 border-gray-800"
+              className="grid grid-cols-9 bg-gray-700 gap-[3px] p-1 rounded-2xl overflow-hidden shadow-xl border-4 border-gray-700"
             >
               {game.grid.map((row, rowIndex) =>
                 row.map((cell, colIndex) => {
@@ -343,10 +344,10 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
                             : isRelatedRowOrCol
                               ? 'bg-blue-50'
                               : 'bg-white hover:bg-blue-50/50'}
-                        ${isRightBorder ? 'border-r-3 border-gray-800' : 'border-r border-gray-200'}
-                        ${isBottomBorder ? 'border-b-3 border-gray-800' : 'border-b border-gray-200'}
-                        ${(rowIndex === 0) ? 'border-t border-gray-200' : ''}
-                        ${(colIndex === 0) ? 'border-l border-gray-200' : ''}
+                        ${isRightBorder ? 'border-r-4 border-gray-700' : 'border-r border-gray-300'}
+                        ${isBottomBorder ? 'border-b-4 border-gray-700' : 'border-b border-gray-300'}
+                        ${(rowIndex === 0) ? 'border-t border-gray-300' : ''}
+                        ${(colIndex === 0) ? 'border-l border-gray-300' : ''}
                       `}
                     >
                       {cell.value}
