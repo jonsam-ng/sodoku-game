@@ -132,7 +132,7 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
       row.map((cell, ci) => ({
         ...cell,
         error: errors.some(([r, c]) => r === ri && c === ci),
-      }))
+      })
     );
 
     setGame({ ...game, grid: newGrid });
@@ -221,11 +221,11 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
       {/* 难度选择弹窗 */}
       {showDifficultyModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl p-7 shadow-2xl max-w-sm w-full mx-4 transform transition-all animate-in fade-in zoom-in duration-200">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl p-7 shadow-2xl max-w-sm w-full mx-4 transform transition-all animate-in fade-in zoom-in duration-200">
             <div className="text-center mb-7">
               <div className="text-4xl mb-3">🎯</div>
-              <h2 className="text-xl font-bold text-gray-800 mb-2">选择难度</h2>
-              <p className="text-gray-500 text-sm">请选择您想要挑战的难度级别</p>
+              <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-2">选择难度</h2>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">请选择您想要挑战的难度级别</p>
             </div>
             <div className="flex flex-col gap-3">
               {(['easy', 'medium', 'hard'] as Difficulty[]).map((diff) => (
@@ -234,10 +234,10 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
                   onClick={() => handleSelectDifficulty(diff)}
                   className={`w-full py-4 rounded-2xl text-base font-bold transition-all transform hover:scale-105 active:scale-95 shadow-sm ${
                     diff === 'easy'
-                      ? 'bg-gradient-to-r from-green-50 to-green-100 text-green-700 border-2 border-green-200 hover:from-green-100 hover:to-green-200'
+                      ? 'bg-gradient-to-r from-green-50 to-green-100 text-green-700 border-2 border-green-200 hover:from-green-100 hover:to-green-200 dark:from-green-900/30 dark:text-green-400 dark:border-green-700'
                       : diff === 'medium'
-                      ? 'bg-gradient-to-r from-yellow-50 to-yellow-100 text-yellow-700 border-2 border-yellow-200 hover:from-yellow-100 hover:to-yellow-200'
-                      : 'bg-gradient-to-r from-red-50 to-red-100 text-red-700 border-2 border-red-200 hover:from-red-100 hover:to-red-200'
+                      ? 'bg-gradient-to-r from-yellow-50 to-yellow-100 text-yellow-700 border-2 border-yellow-200 hover:from-yellow-100 hover:to-yellow-200 dark:from-yellow-900/30 dark:text-yellow-400 dark:border-yellow-700'
+                      : 'bg-gradient-to-r from-red-50 to-red-100 text-red-700 border-2 border-red-200 hover:from-red-100 hover:to-red-200 dark:from-red-900/30 dark:text-red-400 dark:border-red-700'
                   }`}
                 >
                   <div className="flex items-center justify-center gap-2">
@@ -256,29 +256,29 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
       {/* 成功完成弹窗 */}
       {showSuccess && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white rounded-3xl p-7 shadow-2xl max-w-sm w-full mx-4 transform transition-all animate-in fade-in zoom-in duration-300">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl p-7 shadow-2xl max-w-sm w-full mx-4 transform transition-all animate-in fade-in zoom-in duration-300">
             <div className="text-5xl animate-bounce text-center mb-4">🎉</div>
             <div className="text-center mb-5">
-              <h2 className="text-2xl font-bold text-gray-800 mb-1">恭喜完成!</h2>
-              <p className="text-gray-500 text-sm">您成功完成了数独游戏</p>
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">恭喜完成!</h2>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">您成功完成了数独游戏</p>
             </div>
             
             {/* 游戏信息卡片 */}
-            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-5 w-full border border-blue-100 mb-6">
+            <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-2xl p-5 w-full border border-blue-100 dark:border-blue-800 mb-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 font-medium text-sm">难度</span>
-                  <span className="text-base font-bold text-blue-600">{getDifficultyText(difficulty)}</span>
+                  <span className="text-gray-600 dark:text-gray-300 font-medium text-sm">难度</span>
+                  <span className="text-base font-bold text-blue-600 dark:text-blue-400">{getDifficultyText(difficulty)}</span>
                 </div>
-                <div className="w-full h-px bg-gray-200" />
+                <div className="w-full h-px bg-gray-200 dark:bg-gray-600" />
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 font-medium text-sm">用时</span>
-                  <span className="text-xl font-bold text-purple-600">{formatTime(time)}</span>
+                  <span className="text-gray-600 dark:text-gray-300 font-medium text-sm">用时</span>
+                  <span className="text-xl font-bold text-purple-600 dark:text-purple-400">{formatTime(time)}</span>
                 </div>
-                <div className="w-full h-px bg-gray-200" />
+                <div className="w-full h-px bg-gray-200 dark:bg-gray-600" />
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600 font-medium text-sm">错误次数</span>
-                  <span className="text-base font-bold text-red-500">{mistakes}</span>
+                  <span className="text-gray-600 dark:text-gray-300 font-medium text-sm">错误次数</span>
+                  <span className="text-base font-bold text-red-500 dark:text-red-400">{mistakes}</span>
                 </div>
               </div>
             </div>
@@ -286,8 +286,7 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
             {/* 再来一局按钮 */}
             <button
               onClick={handleNewGameClick}
-              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-4 rounded-2xl font-bold text-base hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
-            >
+              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-4 rounded-2xl font-bold text-base hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl">
               再来一局
             </button>
           </div>
@@ -297,28 +296,27 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
       {game && !showDifficultyModal && (
         <>
           {/* 信息栏 */}
-          <div className="flex items-center gap-4 bg-white rounded-2xl px-5 py-3 shadow-sm border border-gray-100 w-full">
+          <div className="flex items-center gap-4 bg-white dark:bg-gray-800 rounded-2xl px-5 py-3 shadow-sm border border-gray-100 dark:border-gray-700 w-full">
             <div className="flex flex-col items-center flex-1">
-              <span className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold mb-0.5">时间</span>
-              <span className="text-xl font-bold text-gray-800">{formatTime(time)}</span>
+              <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider font-semibold mb-0.5">时间</span>
+              <span className="text-xl font-bold text-gray-800 dark:text-white">{formatTime(time)}</span>
             </div>
-            <div className="w-px h-10 bg-gray-200" />
+            <div className="w-px h-10 bg-gray-200 dark:bg-gray-600" />
             <div className="flex flex-col items-center flex-1">
-              <span className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold mb-0.5">难度</span>
-              <span className="text-lg font-bold text-blue-600">{getDifficultyText(difficulty)}</span>
+              <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider font-semibold mb-0.5">难度</span>
+              <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{getDifficultyText(difficulty)}</span>
             </div>
-            <div className="w-px h-10 bg-gray-200" />
+            <div className="w-px h-10 bg-gray-200 dark:bg-gray-600" />
             <div className="flex flex-col items-center flex-1">
-              <span className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold mb-0.5">错误</span>
-              <span className="text-xl font-bold text-red-500">{mistakes}</span>
+              <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider font-semibold mb-0.5">错误</span>
+              <span className="text-xl font-bold text-red-500 dark:text-red-400">{mistakes}</span>
             </div>
           </div>
 
           {/* 数独网格 */}
           <div className="relative w-full">
             <div 
-              className="grid grid-cols-9 bg-gray-700 gap-[3px] p-1 rounded-2xl overflow-hidden shadow-xl border-4 border-gray-700"
-            >
+              className="grid grid-cols-9 bg-gray-700 dark:bg-gray-600 gap-[3px] p-1 rounded-2xl overflow-hidden shadow-xl border-4 border-gray-700 dark:border-gray-600">
               {game.grid.map((row, rowIndex) =>
                 row.map((cell, colIndex) => {
                   const isSelected = selectedCell?.[0] === rowIndex && selectedCell?.[1] === colIndex;
@@ -335,19 +333,19 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
                       className={`
                         aspect-square flex items-center justify-center text-xl font-bold cursor-pointer
                         transition-all duration-200 ease-out
-                        ${cell.fixed ? 'text-gray-800' : 'text-blue-600'}
-                        ${cell.error || hasConflict ? 'text-red-500 bg-red-50' : ''}
+                        ${cell.fixed ? 'text-gray-800 dark:text-gray-200' : 'text-blue-600 dark:text-blue-400'}
+                        ${cell.error || hasConflict ? 'text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/30' : ''}
                         ${isSelected 
-                          ? 'bg-blue-200 ring-2 ring-blue-500 z-10 scale-105 shadow-md' 
+                          ? 'bg-blue-200 dark:bg-blue-900/50 ring-2 ring-blue-500 dark:ring-blue-400 z-10 scale-105 shadow-md' 
                           : hasSameValue && !cell.error && !hasConflict
-                            ? 'bg-yellow-100 text-yellow-800'
+                            ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300'
                             : isRelatedRowOrCol
-                              ? 'bg-blue-50'
-                              : 'bg-white hover:bg-blue-50/50'}
-                        ${isRightBorder ? 'border-r-4 border-gray-700' : 'border-r border-gray-300'}
-                        ${isBottomBorder ? 'border-b-4 border-gray-700' : 'border-b border-gray-300'}
-                        ${(rowIndex === 0) ? 'border-t border-gray-300' : ''}
-                        ${(colIndex === 0) ? 'border-l border-gray-300' : ''}
+                              ? 'bg-blue-50 dark:bg-blue-900/20'
+                              : 'bg-white dark:bg-gray-800 hover:bg-blue-50/50 dark:hover:bg-blue-900/20'}
+                        ${isRightBorder ? 'border-r-4 border-gray-700 dark:border-gray-500' : 'border-r border-gray-300 dark:border-gray-600'}
+                        ${isBottomBorder ? 'border-b-4 border-gray-700 dark:border-gray-500' : 'border-b border-gray-300 dark:border-gray-600'}
+                        ${(rowIndex === 0) ? 'border-t border-gray-300 dark:border-gray-600' : ''}
+                        ${(colIndex === 0) ? 'border-l border-gray-300 dark:border-gray-600' : ''}
                       `}
                     >
                       {cell.value}
@@ -362,8 +360,7 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
           <div className="flex gap-2 w-full justify-center">
             <button
               onClick={handleNewGameClick}
-              className="flex flex-col items-center gap-1 px-4 py-2 text-gray-600 hover:text-blue-500 transition-all hover:bg-blue-50 rounded-xl flex-1"
-            >
+              className="flex flex-col items-center gap-1 px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-all hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl flex-1">
               <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
@@ -371,8 +368,7 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
             </button>
             <button
               onClick={handleCheck}
-              className="flex flex-col items-center gap-1 px-4 py-2 text-gray-600 hover:text-green-500 transition-all hover:bg-green-50 rounded-xl flex-1"
-            >
+              className="flex flex-col items-center gap-1 px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-green-500 dark:hover:text-green-400 transition-all hover:bg-green-50 dark:hover:bg-green-900/30 rounded-xl flex-1">
               <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -380,8 +376,7 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
             </button>
             <button
               onClick={handleHint}
-              className="flex flex-col items-center gap-1 px-4 py-2 text-gray-600 hover:text-purple-500 transition-all hover:bg-purple-50 rounded-xl flex-1"
-            >
+              className="flex flex-col items-center gap-1 px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-purple-500 dark:hover:text-purple-400 transition-all hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-xl flex-1">
               <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
@@ -389,8 +384,7 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
             </button>
             <button
               onClick={handleClear}
-              className="flex flex-col items-center gap-1 px-4 py-2 text-gray-600 hover:text-red-500 transition-all hover:bg-red-50 rounded-xl flex-1"
-            >
+              className="flex flex-col items-center gap-1 px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 transition-all hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl flex-1">
               <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
@@ -413,10 +407,10 @@ const Sudoku: React.FC<SudokuProps> = ({ className = '' }) => {
                   disabled={isComplete}
                   className={`aspect-square flex items-center justify-center text-xl font-bold rounded-xl shadow-sm transition-all transform hover:scale-105 active:scale-95 border-2 ${
                     isComplete 
-                      ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-50'
+                      ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 border-gray-200 dark:border-gray-600 cursor-not-allowed opacity-50'
                       : isNumSelected || isNumHighlighted
-                        ? 'bg-yellow-400 text-yellow-900 border-yellow-500 shadow-md scale-105'
-                        : 'bg-white text-gray-800 border-gray-100 hover:border-blue-300 hover:shadow-md'
+                        ? 'bg-yellow-400 dark:bg-yellow-600 text-yellow-900 dark:text-yellow-100 border-yellow-500 dark:border-yellow-500 shadow-md scale-105'
+                        : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-100 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md'
                   }`}
                 >
                   {num}
